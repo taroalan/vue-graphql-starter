@@ -6,7 +6,7 @@ const { Kind } = require('graphql/language');
 
 const app = new Koa();
 
-app.use(serve('./public'));
+app.use(serve('./dist'));
 
 // Fake data
 let incrementID = 3;

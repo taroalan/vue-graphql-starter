@@ -1,28 +1,106 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <p>Book Lists</p>
+    <template v-if="books.length > 0">
+      <ul>
+        <li v-for="item in books" :key="item.id">
+          {{ `${item.id}-${item.title}` }}, {{ item.author }}
+          <button @click="removeBook(item.id)">Remove</button>
+        </li>
+      </ul>
+      <button @click="addBook">Add book</button>
+    </template>
+    <template v-else>loading...</template>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import { gql } from 'apollo-boost';
+
+const FETCH_BOOKS = gql`
+  query {
+    books {
+      id
+      title
+      author
+      date
+    }
+  }
+`;
 
 export default {
   name: 'app',
-  components: {
-    HelloWorld
-  }
-}
-</script>
+  data() {
+    return {
+      books: [],
+    }
+  },
+  mounted() {
+    this.fetchBooks();
+  },
+  methods: {
+    fetchBooks() {
+      this.$apollo.addSmartQuery('books', {
+        query: FETCH_BOOKS,
+        result: ({ data, loading, networkStatus }) => {
+          console.log('Fetch books result:');
+          console.log(data, loading, networkStatus);
+        },
+        error(error) {
+          console.log(`Some error happened: ${error.toString()}`)
+        }
+      });
+    },
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+    async addBook() {
+      const ret = await this.$apollo.mutate({
+        mutation: gql`mutation ($title: String!,$author: String!) {
+          addBook(title: $title, author: $author) {
+            id
+            title
+            author
+            date
+          }
+        }`,
+        variables: {
+          title: 'New Book',
+          author: 'TOM'
+        },
+        refetchQueries: [{
+          query: FETCH_BOOKS
+        }]
+      })
+
+      // TODO error handlder
+      console.log('Add book success:');
+      console.log(ret);
+    },
+
+    async removeBook(id) {
+      const ret = await this.$apollo.mutate({
+        mutation: gql`mutation ($id: Int!) {
+          deleteBook(id: $id) {
+            id
+            title
+            author
+          }
+        }`,
+        variables: {
+          id,
+        },
+        refetchQueries: [{
+          query: FETCH_BOOKS
+        }]
+      })
+
+      // TODO error handlder
+      console.log('Remove book success:');
+      console.log(ret);
+    }
+  },
+  // apollo: {
+  //   books: FETCH_BOOKS
+  // }
 }
-</style>
+
+</script>

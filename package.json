@@ -3,18 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "node server.js & npm run serve",
+    "dev": "node server.js & npm run serve",
+    "start": "node server.js",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "apollo-boost": "^0.4.4",
     "apollo-server-koa": "^2.9.9",
     "core-js": "^3.3.2",
     "graphql": "^14.5.8",
+    "graphql-tag": "^2.10.1",
     "koa": "^2.11.0",
     "koa-static": "^5.0.0",
-    "vue": "^2.6.10"
+    "vue": "^2.6.10",
+    "vue-apollo": "^3.0.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.0.0",
